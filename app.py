@@ -105,7 +105,10 @@ elif page == "Competitors":
     st.title("Search & Filter Competitors")
 
     col1, col2 = st.columns(2)
-    name_q = col1.text_input("Search by name")
+    selected_names = col1.multiselect(
+    "Search by competitor name",options=sorted(rankings["name"].dropna().unique()),
+    placeholder="Choose competitors (type to search)",
+    )
     countries = col2.multiselect("Country", sorted(rankings["country"].dropna().unique()))
 
     col3, col4 = st.columns(2)
@@ -114,8 +117,8 @@ elif page == "Competitors":
     min_points = col4.number_input("Minimum points", 0, int(rankings["points"].max()), 0, step=100)
 
     df = rankings.copy()
-    if name_q:
-        df = df[df["name"].str.contains(name_q, case=False, na=False)]
+    if selected_names:
+        df = df[df["name"].isin(selected_names)]
     if countries:
         df = df[df["country"].isin(countries)]
     df = df[df["rank"].between(*rank_range) & (df["points"] >= min_points)]
